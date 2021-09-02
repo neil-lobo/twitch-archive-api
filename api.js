@@ -85,3 +85,23 @@ app.post("/vods", async (req, res) => {
             res.status(500).json(err)
         })
 })
+
+app.get("/vod/:type/:id", async (req, res) => {
+    const types = ["stream_id", "vod_id"]
+    if (!types.includes(req.params.type)) {
+        res.stats(400).send()
+        return
+    }
+    console.log(`GET /vod/${req.params.type}/${req.params.id}`)
+
+    const collection = db.collection("vods")
+    let data
+
+    if (req.params.type == "stream_id") {
+        data = await collection.findOne({"stream_id": req.params.id})
+    } else {
+        data = await collection.findOne({"id": req.params.id})
+    }
+
+    res.json(data)
+})
