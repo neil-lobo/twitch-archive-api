@@ -64,7 +64,7 @@ app.get("/vods/:user_id", async (req, res) => {
     let vods = []
 
     const collection = db.collection("vods")
-    const cursor = await collection.find({"data.id": req.params.user_id}, {projection: {_id: 0}})
+    const cursor = await collection.find({"user_id": req.params.user_id}, {projection: {_id: 0}})
     for (let i = 0; i < (await cursor.count()); i++) {
         vods.push(await cursor.next())
     }
@@ -76,7 +76,7 @@ app.post("/vods", async (req, res) => {
     console.log("POST /vods")
 
     const collection = db.collection("vods")
-    collection.insertOne({data: req.body})
+    collection.insertOne(req.body)
         .then(() => {
             console.log("[DB] New vod data logged")
             res.status(201).send()
