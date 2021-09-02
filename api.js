@@ -8,19 +8,24 @@ app.use(express.json())
 const client = new MongoClient(process.env.DB)
 let db
 
+function log(str) {
+    const date = new Date()
+    console.log(`(UTC/GMT${(-1)*date.getTimezoneOffset()/60}) ${date.toLocaleString()} |> ${str}`)
+}
+
 client.connect((err, client) => {
     if (err) throw err
 
     db = client.db("twitch-archive")
-    console.log("[DB] CONNECTED")
+    log("[DB] CONNECTED")
 
     app.listen(process.env.PORT || 3000, () => {
-        console.log(`[EXPRESS] Listening on: ${process.env.PORT || 3000}`)
+        log(`[EXPRESS] Listening on: ${process.env.PORT || 3000}`)
     })
 })
 
 app.get("/streamers", async (req, res) => {
-    console.log("GET /streamers")
+    log("GET /streamers")
     let streamers = []
 
     const collection = db.collection("streamers")
@@ -33,12 +38,12 @@ app.get("/streamers", async (req, res) => {
 })
 
 app.post("/streamers", async (req, res) => {
-    console.log("POST /streamers")
+    log("POST /streamers")
 
     const collection = db.collection("streamers")
     collection.insertOne(req.body)
         .then(() => {
-            console.log("[DB] New Streamer Added")
+            log("[DB] New Streamer Added")
             res.status(201).send()
         })
         .catch(err => {
@@ -47,7 +52,7 @@ app.post("/streamers", async (req, res) => {
 })
 
 app.get("/vods", async (req, res) => {
-    console.log("GET /vods")
+    log("GET /vods")
     let vods = []
 
     const collection = db.collection("vods")
@@ -60,7 +65,7 @@ app.get("/vods", async (req, res) => {
 })
 
 app.get("/vods/:user_id", async (req, res) => {
-    console.log(`GET /vods/${req.params.user_id}`)
+    log(`GET /vods/${req.params.user_id}`)
     let vods = []
 
     const collection = db.collection("vods")
@@ -73,12 +78,12 @@ app.get("/vods/:user_id", async (req, res) => {
 })
 
 app.post("/vods", async (req, res) => {
-    console.log("POST /vods")
+    log("POST /vods")
 
     const collection = db.collection("vods")
     collection.insertOne(req.body)
         .then(() => {
-            console.log("[DB] New vod data logged")
+            log("[DB] New vod data logged")
             res.status(201).send()
         })
         .catch(err => {
@@ -92,7 +97,7 @@ app.get("/vod/:type/:id", async (req, res) => {
         res.stats(400).send()
         return
     }
-    console.log(`GET /vod/${req.params.type}/${req.params.id}`)
+    log(`GET /vod/${req.params.type}/${req.params.id}`)
 
     const collection = db.collection("vods")
     let data
