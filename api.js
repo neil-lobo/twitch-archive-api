@@ -1,3 +1,4 @@
+const { json } = require("express")
 const express = require("express")
 const {MongoClient} = require("mongodb")
 
@@ -23,8 +24,7 @@ app.get("/streamers", async (req, res) => {
     let streamers = []
 
     const collection = db.collection("streamers")
-    const cursor =  await collection.find({}, {projection: {_id: 0}})
-
+    const cursor = await collection.find({}, {projection: {_id: 0}})
     for (let i = 0; i < (await cursor.count()); i++) {
         streamers.push(await cursor.next())
     }
@@ -41,7 +41,47 @@ app.post("/streamers", async (req, res) => {
             console.log("[DB] New Streamer Added")
             res.status(201).send()
         })
-        .catch((err) => {
+        .catch(err => {
+            res.status(500).json(err)
+        })
+})
+
+app.get("/vods", async (req, res) => {
+    console.log("GET /vods")
+    let vods = []
+
+    const collection = db.collection("vods")
+    const cursor = await collection.find({}, {projection: {_id: 0}})
+    for (let i = 0; i < (await cursor.count()); i++) {
+        vods.push(await cursor.next())
+    }
+
+    res.json(vods)
+})
+
+app.get("/vods/:user_id", async (req, res) => {
+    console.log(`GET /vods/${req.params.user_id}`)
+    let vods = []
+
+    const collection = db.collection("vods")
+    const cursor = await collection.find({"data.id": req.params.user_id}, {projection: {_id: 0}})
+    for (let i = 0; i < (await cursor.count()); i++) {
+        vods.push(await cursor.next())
+    }
+
+    res.json(vods)
+})
+
+app.post("/vods", async (req, res) => {
+    console.log("POST /vods")
+
+    const collection = db.collection("vods")
+    collection.insertOne({data: req.body})
+        .then(() => {
+            console.log("[DB] New vod data logged")
+            res.status(201).send()
+        })
+        .catch(err => {
             res.status(500).json(err)
         })
 })
