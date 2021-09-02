@@ -3,6 +3,7 @@ const {MongoClient} = require("mongodb")
 
 require("dotenv").config()
 const app = express()
+app.use(express.json())
 const client = new MongoClient(process.env.DB)
 let db
 
@@ -29,4 +30,18 @@ app.get("/streamers", async (req, res) => {
     }
 
     res.json(streamers)
+})
+
+app.post("/streamers", async (req, res) => {
+    console.log("POST /streamers")
+
+    const collection = db.collection("streamers")
+    collection.insertOne(req.body)
+        .then(() => {
+            console.log("[DB] New Streamer Added")
+            res.status(201).send()
+        })
+        .catch((err) => {
+            res.status(500).json(err)
+        })
 })
