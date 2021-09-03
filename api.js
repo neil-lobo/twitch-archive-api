@@ -13,6 +13,12 @@ function log(str) {
     console.log(`(UTC/GMT${(-1)*date.getTimezoneOffset()/60}) ${date.toLocaleString()} |> ${str}`)
 }
 
+function logVerbose(str) {
+    if (process.env.LOG == "verbose") {
+        log(str)
+    }
+}
+
 client.connect((err, client) => {
     if (err) throw err
 
@@ -25,7 +31,7 @@ client.connect((err, client) => {
 })
 
 app.get("/streamers", async (req, res) => {
-    log("GET /streamers")
+    logVerbose("GET /streamers")
     let streamers = []
 
     const collection = db.collection("streamers")
@@ -38,7 +44,7 @@ app.get("/streamers", async (req, res) => {
 })
 
 app.post("/streamers", async (req, res) => {
-    log("POST /streamers")
+    logVerbose("POST /streamers")
 
     const collection = db.collection("streamers")
     collection.insertOne(req.body)
@@ -52,7 +58,7 @@ app.post("/streamers", async (req, res) => {
 })
 
 app.get("/vods", async (req, res) => {
-    log("GET /vods")
+    logVerbose("GET /vods")
     let vods = []
 
     const collection = db.collection("vods")
@@ -65,7 +71,7 @@ app.get("/vods", async (req, res) => {
 })
 
 app.get("/vods/:user_id", async (req, res) => {
-    log(`GET /vods/${req.params.user_id}`)
+    logVerbose(`GET /vods/${req.params.user_id}`)
     let vods = []
 
     const collection = db.collection("vods")
@@ -78,7 +84,7 @@ app.get("/vods/:user_id", async (req, res) => {
 })
 
 app.post("/vods", async (req, res) => {
-    log("POST /vods")
+    logVerbose("POST /vods")
 
     const collection = db.collection("vods")
     collection.insertOne(req.body)
@@ -97,7 +103,7 @@ app.get("/vod/:type/:id", async (req, res) => {
         res.stats(400).send()
         return
     }
-    log(`GET /vod/${req.params.type}/${req.params.id}`)
+    logVerbose(`GET /vod/${req.params.type}/${req.params.id}`)
 
     const collection = db.collection("vods")
     let data
