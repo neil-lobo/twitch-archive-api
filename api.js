@@ -1,10 +1,12 @@
 const { json } = require("express")
 const express = require("express")
+const cors = require("cors")
 const {MongoClient} = require("mongodb")
 
 require("dotenv").config()
 const app = express()
 app.use(express.json())
+app.use(cors())
 const client = new MongoClient(process.env.DB)
 let db
 
@@ -32,12 +34,12 @@ client.connect((err, client) => {
 
 app.get("/streamers", async (req, res) => {
     logVerbose("GET /streamers")
-    let streamers = []
+    let streamers = {}
 
     const collection = db.collection("streamers")
     const cursor = await collection.find({}, {projection: {_id: 0}})
     for (let i = 0; i < (await cursor.count()); i++) {
-        streamers.push(await cursor.next())
+        streamers = Object.assign(await cursor.next(), streamers)
     }
 
     res.json(streamers)
