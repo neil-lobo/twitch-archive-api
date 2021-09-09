@@ -77,7 +77,10 @@ app.get("/vods/:user_id", async (req, res) => {
     let vods = []
 
     const collection = db.collection("vods")
-    const cursor = await collection.find({"user_id": req.params.user_id}, {projection: {_id: 0}})
+    let cursor = await collection.find({"user_id": req.params.user_id}, {projection: {_id: 0}})
+    if (req.query.sort == "new") {
+        cursor = cursor.sort({published_at: -1})
+    }
     for (let i = 0; i < (await cursor.count()); i++) {
         vods.push(await cursor.next())
     }
